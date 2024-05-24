@@ -27,4 +27,21 @@ def download_dataset():
         print(f'Il dataset {dataset} è già presente nella directory {dataset_dir}.')
 
 def load_dataset():
-    pass
+    download_dataset()
+
+    directory = './datasets/ryerson-emotion-database'
+
+    for nome_cartella in os.listdir(directory):
+        # Ottieni il percorso completo della cartella
+        percorso_cartella = os.path.join(directory, nome_cartella, nome_cartella)
+
+        if os.path.isdir(percorso_cartella):
+            for nome_file in os.listdir(percorso_cartella):
+                percorso_file = os.path.join(percorso_cartella, nome_file)
+                if not os.path.isdir(percorso_file):
+                    if not percorso_file.endswith(".db"):
+                        print(percorso_file)
+                else: 
+                    for nome_file2 in os.listdir(percorso_file):
+                        percorso_file2 = os.path.join(percorso_file, nome_file2)
+                        print(percorso_file2)

@@ -1,4 +1,9 @@
 
+from dataset import load_dataset
 
 def main():
-    pass
+
+    load_dataset()
+
+if __name__ == "__main__":
+    main()
