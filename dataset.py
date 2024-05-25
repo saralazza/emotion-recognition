@@ -31,17 +31,26 @@ def load_dataset():
 
     directory = './datasets/ryerson-emotion-database'
 
-    for nome_cartella in os.listdir(directory):
-        # Ottieni il percorso completo della cartella
-        percorso_cartella = os.path.join(directory, nome_cartella, nome_cartella)
+    labels_name = []
+    paths = []
 
-        if os.path.isdir(percorso_cartella):
-            for nome_file in os.listdir(percorso_cartella):
-                percorso_file = os.path.join(percorso_cartella, nome_file)
-                if not os.path.isdir(percorso_file):
+    for subject in os.listdir(directory):
+        percorso_dir_subject = os.path.join(directory, subject, subject)
+
+        for elem in os.listdir(percorso_dir_subject):
+            percorso_elem = os.path.join(percorso_dir_subject, elem)
+            if not os.path.isdir(percorso_elem):
+                if not percorso_elem.endswith(".db"):
+                    paths.append(percorso_elem)
+                    label_name = elem[:2]
+                    if label_name not in labels_name:
+                        labels_name.append(label_name)
+            else: 
+                for file in os.listdir(percorso_elem):
+                    percorso_file = os.path.join(percorso_elem, file)
                     if not percorso_file.endswith(".db"):
-                        print(percorso_file)
-                else: 
-                    for nome_file2 in os.listdir(percorso_file):
-                        percorso_file2 = os.path.join(percorso_file, nome_file2)
-                        print(percorso_file2)
+                        paths.append(percorso_file)
+                        label_name = file[:2]
+                        if label_name not in labels_name:
+                            labels_name.append(label_name)
+    return paths, labels_name
