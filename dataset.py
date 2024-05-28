@@ -35,9 +35,11 @@ def load_dataset():
     paths = []
 
     for subject in os.listdir(directory):
+        if subject == ".DS_Store": continue #lo aggiungo per fargli saltare il DS_Store
         percorso_dir_subject = os.path.join(directory, subject, subject)
 
         for elem in os.listdir(percorso_dir_subject):
+            if elem == ".DS_Store": continue #lo aggiungo per fargli saltare il DS_Store
             percorso_elem = os.path.join(percorso_dir_subject, elem)
             if not os.path.isdir(percorso_elem):
                 if not percorso_elem.endswith(".db"):
