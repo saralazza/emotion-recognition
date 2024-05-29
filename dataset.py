@@ -3,6 +3,9 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 import joblib
 
 def download_dataset():
+    """
+    Download the dataset "shanp1234/ryerson-emotion-database" from kaggle and put in "./datasets/ryerson-emotion-database"
+    """
     # Imposta il nome del dataset che vuoi scaricare
     dataset = 'shanp1234/ryerson-emotion-database'
 
@@ -28,6 +31,12 @@ def download_dataset():
         print(f'Il dataset {dataset} è già presente nella directory {dataset_dir}.')
 
 def load_dataset():
+    """Load the dataset from the fold "./datasets/ryerson-emotion-database"
+
+    Return:
+        (list) of paths of the video in the datasets,
+        (list) of different labels found in the dataset 
+    """
     download_dataset()
 
     directory = './datasets/ryerson-emotion-database'
@@ -59,10 +68,28 @@ def load_dataset():
     return paths, labels_name
 
 def save_dataset(features, labels, filepath):
+    """Save the processed dataset with all features extracted
+
+    Args:
+        features: list of features for each sample
+        labels: list of label for each sample
+        filepath: target directory of the file
+    """
     joblib.dump((features, labels), filepath)
     print(f"Dataset salvato in {filepath}")
 
 def load_dataset_jlb(filepath):
+    """Load the dataset with all features extracted from the file
+    
+    Args: 
+        filepath: file from which load the dataset
+    
+    Return:
+        features: (list) of features for each sample
+        labels: (list) of label for each sample
+
+
+    """
     features, labels = joblib.load(filepath)
     print(f"Dataset caricato da {filepath}")
     return features, labels
