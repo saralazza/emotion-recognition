@@ -3,25 +3,26 @@ from dataset import *
 from frames_extractor import load_video
 from features_extractor import feature_from_Stream
 import os
+import json
 import numpy as np
-import matplotlib as plt
 from sklearn.model_selection import train_test_split
 import models
 
 
 
-
+"""Main function"""
 def main():
     dataset_filepath = 'dataset_features.pkl'
-
     if os.path.exists(dataset_filepath):
         point_list, labels = load_dataset_jlb(dataset_filepath)
-        labels_name = list({lab for lab in labels})
+        labels_name = json.load(open("labels_name.json"))
     else:
         paths, labels_name = load_dataset()
         frames_list, labels = load_video(paths, labels_name)
         point_list = feature_from_Stream(frames_list)
         save_dataset(point_list, labels, dataset_filepath)
+        with open("labels_name.json", "w") as outfile:
+            json.dump(labels_name, outfile)
 
 
     NUM_CLASSES = len(labels_name)
