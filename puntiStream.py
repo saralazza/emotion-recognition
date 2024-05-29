@@ -3,14 +3,13 @@ import cv2
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-
+from tqdm import tqdm
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-#me sa che non serve
 def draw_landmarks_on_image(rgb_image, detection_result):
     face_landmarks_list = detection_result.face_landmarks
     annotated_image = np.copy(rgb_image)
@@ -50,6 +49,7 @@ def draw_landmarks_on_image(rgb_image, detection_result):
 
     return annotated_image
 
+
 def plot_face_blendshapes_bar_graph(face_blendshapes):
     # Extract the face blendshapes category names and scores.
     face_blendshapes_names = [face_blendshapes_category.category_name for face_blendshapes_category in face_blendshapes]
@@ -71,35 +71,57 @@ def plot_face_blendshapes_bar_graph(face_blendshapes):
     plt.tight_layout()
     plt.show()
 
-# STEP 2: Create a FaceLandmarker object.
 
-def feature_From_Stream(image):
-
+def feature_from_Image(image):
+    image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image) #from numpy to mediapipe 
+    
     base_options = python.BaseOptions(model_asset_path='face_landmarker_v2_with_blendshapes.task')
     options = vision.FaceLandmarkerOptions(base_options=base_options,
                                        output_face_blendshapes=True,
                                        output_facial_transformation_matrixes=True,
                                        num_faces=1)
     detector = vision.FaceLandmarker.create_from_options(options)
-    # STEP 3: Load the input image.
-# image_path = "faces/Aface4.png"
-# image = mp.Image.create_from_file(image_path)
 
-# STEP 4: Detect face landmarks from the input image.
     detection_result = detector.detect(image)
-
-# STEP 5: Process the detection result. In this case, visualize it.
-    #rgba_image = image.numpy_view()  # Get the RGB image
-# Remove the alpha channel if it exists
-    #rgb_image = cv2.cvtColor(rgba_image, cv2.COLOR_RGBA2RGB)
-
-# annotated_image = draw_landmarks_on_image(rgb_image, detection_result)
-
-# # Convert RGB image to BGR format for OpenCV
-# annotated_image_bgr = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
-
-# # Show the image with landmarks
-# cv2.imshow("Annotated Image", annotated_image_bgr)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
     return detection_result.face_blendshapes[0]
+
+
+def feature_from_Stream(frame_video_lists):
+    base_options = python.BaseOptions(model_asset_path='face_landmarker_v2_with_blendshapes.task')
+    options = vision.FaceLandmarkerOptions(base_options=base_options,
+                                       output_face_blendshapes=True,
+                                       output_facial_transformation_matrixes=True,
+                                       num_faces=1)
+    detector = vision.FaceLandmarker.create_from_options(options)
+    faces_blendshapes_scores_video_list = [] #contiene lo stream di feature di tutti i video
+    for video in tqdm(frame_video_lists,desc = "video in list"):
+        face_blendshapes_scores_list = [] #contiene le feture di tutti i frame di un video 
+        for frame in video :
+            image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+            detection_result = detector.detect(image)
+            if detection_result.face_blendshapes == []:
+                if face_blendshapes_scores_list == []:
+                    face_blendshapes_scores_list.append(np.zeros(shape= 52))
+                else: face_blendshapes_scores_list.append(face_blendshapes_scores_list[-1])
+            else:
+                face_blendshapes_scores_list.append([cat.score for cat in detection_result.face_blendshapes[0]])
+        faces_blendshapes_scores_video_list.append(face_blendshapes_scores_list)
+    return np.array(faces_blendshapes_scores_video_list, dtype='float32')           
+
+
+def annotated_From_image(image):
+
+    image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image) #from numpy to mediapipe 
+    base_options = python.BaseOptions(model_asset_path='face_landmarker_v2_with_blendshapes.task')
+    options = vision.FaceLandmarkerOptions(base_options=base_options,
+                                       output_face_blendshapes=True,
+                                       output_facial_transformation_matrixes=True,
+                                       num_faces=1)
+    
+    detector = vision.FaceLandmarker.create_from_options(options)
+    detection_result = detector.detect(image)
+    rgba_image = image.numpy_view()  
+    rgb_image = cv2.cvtColor(rgba_image, cv2.COLOR_RGBA2RGB)
+    annotated_image = draw_landmarks_on_image(rgb_image, detection_result)
+    annotated_black_image = draw_landmarks_on_image(np.zeros(shape=(rgb_image.shape[1], rgb_image.shape[0], 3)), detection_result)
+    return np.hstack((annotated_image,annotated_black_image))

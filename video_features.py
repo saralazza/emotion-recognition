@@ -31,7 +31,7 @@ def feature_extraction(video_path):
 
 def feature_extraction_NN(video_path):
     width = 240
-    height = 320 # size dei video del dataset
+    height = 320
     sequence_length = 50
     frames = []
 
@@ -45,8 +45,7 @@ def feature_extraction_NN(video_path):
         # Se l'operazione non è andata a buon fine
         if not ret:
             break
-        #print(frame.shape)
-        #frame=cv2.resize(frame, (height, width))
+        frame=cv2.resize(frame, (height, width))
         #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         frames.append(frame)
     
@@ -60,11 +59,14 @@ def load_video(paths, labels_name):
     frames_list = []
     labels = []
 
-    for video_path in tqdm(paths, desc="Processing videos"):
+    for i,video_path in enumerate(paths):
+        if i == 114:
+            print(video_path)
         frames = feature_extraction_NN(video_path)
         frames_list.append(frames)
         label = video_path.split('/')[-1][:2]
         labels.append(labels_name.index(label))
+    
 #                           prima era 'float32'
     return np.array(frames_list, dtype='ubyte'), np.array(labels, dtype='int8')
 
