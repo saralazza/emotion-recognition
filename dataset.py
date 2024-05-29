@@ -1,5 +1,6 @@
 import os
 from kaggle.api.kaggle_api_extended import KaggleApi
+import joblib
 
 def download_dataset():
     # Imposta il nome del dataset che vuoi scaricare
@@ -56,3 +57,12 @@ def load_dataset():
                         if label_name not in labels_name:
                             labels_name.append(label_name)
     return paths, labels_name
+
+def save_dataset(features, labels, filepath):
+    joblib.dump((features, labels), filepath)
+    print(f"Dataset salvato in {filepath}")
+
+def load_dataset_jlb(filepath):
+    features, labels = joblib.load(filepath)
+    print(f"Dataset caricato da {filepath}")
+    return features, labels

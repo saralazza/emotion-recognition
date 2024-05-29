@@ -94,7 +94,7 @@ def feature_from_Stream(frame_video_lists):
                                        num_faces=1)
     detector = vision.FaceLandmarker.create_from_options(options)
     faces_blendshapes_scores_video_list = [] #contiene lo stream di feature di tutti i video
-    for video in tqdm(frame_video_lists,desc = "video in list"):
+    for video in tqdm(frame_video_lists,desc = "processing video"):
         face_blendshapes_scores_list = [] #contiene le feture di tutti i frame di un video 
         for frame in video :
             image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
