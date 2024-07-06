@@ -598,6 +598,7 @@ def train_audio_model(subtrain_dataloader, subtest_dataloader):
     plt.xlabel('Predicted Label')
     plt.show()
 
+
 def create_audio_model():
 
     print("Audio extraction by video of subtrain set...\n")
